@@ -1,0 +1,65 @@
+﻿@model IEnumerable<RideRental.Models.Bike>
+@{
+    ViewData["Title"] = "Manage Bikes";
+}
+<h2>Manage Bikes</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<a asp-controller="Bikes" asp-action="Create" class="btn btn-success mb-3">Add New Bike</a>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Model</th>
+            <th>Year</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Price/Hour</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bike in Model)
+        {
+            <tr>
+                <td>@bike.Model</td>
+                <td>@bike.Year</td>
+                <td>@bike.Category</td>
+                <td>@bike.AvailabilityStatus</td>
+                <td>@bike.RentalPricePerHour</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@bike.BikeID" class="btn btn-warning btn-sm">Edit</a>
+
+                    <!-- Trigger Delete Modal -->
+                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal-@bike.BikeID">Delete</button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal-@bike.BikeID" tabindex="-1" aria-labelledby="deleteModalLabel-@bike.BikeID" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="deleteModalLabel-@bike.BikeID">Delete Confirmation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete the bike <strong>@bike.Model</strong> from <strong>@bike.Year</strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <form asp-action="DeleteConfirmed" method="post">
+                                        <input type="hidden" name="id" value="@bike.BikeID" />
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

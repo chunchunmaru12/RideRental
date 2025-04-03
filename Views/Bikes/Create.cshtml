@@ -1,0 +1,51 @@
+﻿@model RideRental.Models.Bike
+@{
+    ViewData["Title"] = "Add New Bike";
+}
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+<h2>Add New Bike</h2>
+<form asp-controller="Bikes" asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="Model"></label>
+        <input asp-for="Model" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Year"></label>
+        <input asp-for="Year" type="number" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Category"></label>
+        <input asp-for="Category" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="EngineType"></label>
+        <input asp-for="EngineType" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Power"></label>
+        <input asp-for="Power" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="ColorOptions"></label>
+        <input asp-for="ColorOptions" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="AvailabilityStatus"></label>
+        <select asp-for="AvailabilityStatus" class="form-select">
+            <option>Available</option>
+            <option>Rented</option>
+            <option>Pending Approval</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="RentalPricePerHour"></label>
+        <input asp-for="RentalPricePerHour" type="number" step="0.01" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Upload Image</label>
+        <input type="file" name="imageFile" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>

@@ -1,0 +1,58 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Register";
+}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm animate__animated animate__fadeInUp">
+                <div class="card-header bg-success text-white text-center">
+                    <h4><i class="bi bi-person-plus"></i> Register</h4>
+                </div>
+                <div class="card-body">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <form asp-action="Register" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label">Full Name</label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Age" class="form-label">Age</label>
+                            <input asp-for="Age" type="number" class="form-control" />
+                            <span asp-validation-for="Age" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Occupation" class="form-label">Occupation</label>
+                            <select asp-for="Occupation" class="form-select">
+                                <option value="">-- Select Occupation --</option>
+                                <option>Student</option>
+                                <option>Unemployed</option>
+                                <option>Professional</option>
+                                <option>Retired</option>
+                                <option>Other</option>
+                            </select>
+                            <span asp-validation-for="Occupation" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <input asp-for="Password" type="password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">License Picture</label>
+                            <input type="file" name="licensePicture" class="form-control" />
+                        </div>
+                        <button type="submit" class="btn btn-success w-100"><i class="bi bi-check-circle"></i> Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
