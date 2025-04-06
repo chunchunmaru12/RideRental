@@ -1,0 +1,60 @@
+﻿@model IEnumerable<RideRental.Models.User>
+
+@{
+    ViewData["Title"] = "All Users";
+    var userIndex = 0;
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center"><i class="bi bi-people-fill me-2"></i> Registered Users</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Occupation</th>
+                    <th>Email</th>
+                    <th>License</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Age</td>
+                            <td>@user.Occupation</td>
+                            <td>@user.Email</td>
+                            <td class="text-center">
+                            @if (!string.IsNullOrEmpty(user.LicensePicturePath))
+                            {
+                                var modalId = $"licenseModal_{userIndex}";
+                                        <img src="@user.LicensePicturePath" alt="License" width="80" class="img-thumbnail"
+                                             data-bs-toggle="modal" data-bs-target="#@modalId" style="cursor: zoom-in;" />
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-body text-center">
+                                                        <img src="@user.LicensePicturePath" alt="License Full View" class="img-fluid rounded" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                userIndex++;
+                            }
+                            else
+                            {
+                                        <span class="text-muted">No Image</span>
+                            }
+                            </td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

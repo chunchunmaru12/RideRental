@@ -24,6 +24,10 @@ namespace RideRental.Controllers
         }
 
         public IActionResult Register() => View();
+        public IActionResult UserMain()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Register(User user, IFormFile licensePicture)
@@ -75,9 +79,9 @@ namespace RideRental.Controllers
                 HttpContext.Session.SetString("UserRole", user.Role);
 
                 if (user.Role == "Admin")
-                    return RedirectToAction("AdminDashboard", "Account");
+                    return RedirectToAction("AllUsers", "Account");
 
-                return RedirectToAction("UserDashboard", "Account");
+                return RedirectToAction("UserMain", "Account");
             }
 
             ViewBag.Message = "Invalid credentials";
@@ -112,6 +116,17 @@ namespace RideRental.Controllers
 
         }
 
+        //users details:
+        public async Task<IActionResult> AllUsers()
+        {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Unauthorized();
+
+            var users = await _context.Users
+                .Where(u => u.Role != "Admin")
+                .ToListAsync();
+            return View("~/Views/Account/AllUsers.cshtml", users);
+        }
 
         public IActionResult Logout()
         {

@@ -4,7 +4,10 @@
 
 @if (!Model.Any())
 {
-    <p>No recommendations found. Rent a bike first to get personalized suggestions!</p>
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No recommendations found. Rent a bike first to get personalized suggestions!
+    </div>
+
 }
 else
 {
@@ -21,7 +24,7 @@ else
                             Power: @bike.Power<br />
                             Price: $@bike.RentalPricePerHour/hr
                         </p>
-                        <a asp-action="UserDashboard" class="btn btn-outline-primary w-100">View More</a>
+                        <a asp-controller="Bikes" asp-action="UserDashboard" class="btn btn-outline-primary w-100">View</a>
                     </div>
                 </div>
             </div>

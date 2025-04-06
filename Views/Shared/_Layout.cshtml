@@ -31,6 +31,10 @@
                         @if (HttpContextAccessor.HttpContext.Session.GetString("UserEmail") == "admin@site.com")
                         {
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="AllUsers">Users</a>
+
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Bikes" asp-action="Index">Manage Bikes</a>
                             </li>
                             <li class="nav-item">

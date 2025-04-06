@@ -3,20 +3,49 @@
 }
 
 <!-- Hero Section -->
-<div class="container-fluid bg-light py-5" id="hero">
-    <div class="row align-items-center justify-content-center px-5">
-        <div class="col-md-6 mb-4 mb-md-0 animate__animated animate__fadeInLeft">
-            <h1 class="display-5 fw-bold">BIKE RENTAL</h1>
-            <p class="lead mt-3">
-                Experience the joy of riding a bike without the hassle of ownership.
-                <strong>Join us at Online Bike Rental</strong> and embark on your next biking adventure <strong>today!</strong>
-            </p>
-            <a href="/Account/Register" class="btn btn-success btn-lg mt-3">
-                <i class="bi bi-bicycle"></i> Book Your Ride
-            </a>
-        </div>
-        <div class="col-md-6 text-center animate__animated animate__fadeInRight">
-            <img src="~/uploads/bike.jpg" class="img-fluid" alt="Bike Rental" style="max-height: 420px;" />
+<div class="py-5 bg-white" id="hero">
+    <div class="container py-4">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-md-6 mb-4 mb-md-0 animate__animated animate__fadeInLeft text-dark">
+                <h1 class="display-4 fw-bold"><i class="bi bi-bicycle me-2"></i> BIKE RENTAL</h1>
+                <p class="lead mt-3">
+                    Experience the joy of riding without the hassle of ownership.
+                    <br />
+                    <strong>Join <span class="text-dark">Online Bike Rental</span></strong> and explore your city <strong>your way!</strong>
+                </p>
+                <a href="/Account/Register" class="btn btn-success btn-lg mt-3 animate__animated animate__pulse animate__infinite">
+                    <i class="bi bi-bicycle me-2"></i> Book Your Ride
+                </a>
+            </div>
+
+            <div class="col-md-5 text-center animate__animated animate__fadeInRight">
+                <div class="bg-white rounded ">
+                    <img src="~/uploads/bike.jpg" class="img-fluid rounded" alt="Bike Rental" style="max-height: 400px;" />
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
+<!-- Features Section -->
+<div class="container mt-5 text-center">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <i class="bi bi-shop-window display-4 text-primary"></i>
+            <h5 class="mt-2 fw-semibold">Trusted Local Store</h5>
+            <p>Pick up your ride from our reliable central hub.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="bi bi-speedometer2 display-4 text-success"></i>
+            <h5 class="mt-2 fw-semibold">Powerful Bikes</h5>
+            <p>Well-maintained, fast, and reliable rides.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="bi bi-wallet2 display-4 text-warning"></i>
+            <h5 class="mt-2 fw-semibold">Affordable Rates</h5>
+            <p>Budget-friendly hourly and daily plans.</p>
+        </div>
+    </div>
+</div>
+

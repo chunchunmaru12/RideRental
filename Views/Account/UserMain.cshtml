@@ -1,0 +1,53 @@
+﻿@model IEnumerable<RideRental.Models.User>
+@{
+    ViewData["Title"] = "User Dashboard";
+    var email = Context.Session.GetString("UserEmail");
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 fw-bold">Welcome back 👋</h2>
+    <div class="alert alert-info">
+        Logged in as: <strong>@email</strong>
+    </div>
+
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <i class="bi bi-bicycle display-4 text-success"></i>
+                    <h5 class="mt-3 fw-semibold">Rent a Bike</h5>
+                    <p class="text-muted">Browse bikes and request rentals.</p>
+                    <a asp-controller="Bikes" asp-action="UserDashboard" class="btn btn-outline-success">Explore Bikes</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <i class="bi bi-clock-history display-4 text-primary"></i>
+                    <h5 class="mt-3 fw-semibold">Rental History</h5>
+                    <p class="text-muted">Track your past bookings and status.</p>
+                    <a asp-controller="Bikes" asp-action="RentalHistory" class="btn btn-outline-primary">View History</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <i class="bi bi-stars display-4 text-warning"></i>
+                    <h5 class="mt-3 fw-semibold">Recommended Bikes</h5>
+                    <p class="text-muted">Find bikes based on your preferences.</p>
+                    <a asp-controller="Bikes" asp-action="Recommended" class="btn btn-outline-warning">View Recommendations</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end mt-4">
+        <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-danger">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </div>
+</div>

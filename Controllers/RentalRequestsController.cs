@@ -90,8 +90,20 @@ namespace RideRental.Controllers
                 .OrderByDescending(l => l.Timestamp)
                 .ToListAsync();
 
+            var chartData = logs
+                .GroupBy(l => new { Date = l.Timestamp.Date, l.Action })
+                .Select(g => new
+                {
+                    Date = g.Key.Date.ToString("yyyy-MM-dd"),
+                    Action = g.Key.Action,
+                    Count = g.Count()
+                })
+                .ToList();
+
+            ViewBag.ChartData = chartData;
             return View("~/Views/RentalRequests/RentalLogs.cshtml", logs);
         }
+
 
     }
 

@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<RideRental.Models.RentalLog>
+ 
+@using Newtonsoft.Json
 
 <h2>Rental Activity Log</h2>
 
@@ -23,3 +25,69 @@
         }
     </tbody>
 </table>
+<div class="mb-5">
+    <canvas id="rentalChart" height="100"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const rawData = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ChartData));
+
+        // Extract unique dates
+        const labels = [...new Set(rawData.map(x => new Date(x.Date).toISOString().split('T')[0]))];
+
+        const getCounts = (action) =>
+            labels.map(date =>
+                rawData.find(x => x.Date.includes(date) && x.Action === action)?.Count || 0
+            );
+
+        const ctx = document.getElementById('rentalChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Requested',
+                        backgroundColor: '#ffc107',
+                        data: getCounts('Requested')
+                    },
+                    {
+                        label: 'Approved',
+                        backgroundColor: '#198754',
+                        data: getCounts('Approved')
+                    },
+                    {
+                        label: 'Rejected',
+                        backgroundColor: '#dc3545',
+                        data: getCounts('Rejected')
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Rental Actions Over Time'
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Actions'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
+

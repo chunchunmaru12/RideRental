@@ -2,28 +2,34 @@
 @{
     ViewData["Title"] = "Register";
 }
+
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow-sm animate__animated animate__fadeInUp">
-                <div class="card-header bg-success text-white text-center">
-                    <h4><i class="bi bi-person-plus"></i> Register</h4>
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h4 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i> Create an Account</h4>
+                    <p class="mb-0 small">Join RideRental and start exploring!</p>
                 </div>
-                <div class="card-body">
+
+                <div class="card-body p-4">
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
                     <form asp-action="Register" method="post" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label asp-for="FullName" class="form-label">Full Name</label>
-                            <input asp-for="FullName" class="form-control" />
-                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        <div class="form-floating mb-3">
+                            <input asp-for="FullName" class="form-control" placeholder="Full Name" />
+                            <label asp-for="FullName">Full Name</label>
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Age" class="form-label">Age</label>
-                            <input asp-for="Age" type="number" class="form-control" />
-                            <span asp-validation-for="Age" class="text-danger"></span>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Age" type="number" class="form-control" placeholder="Age" />
+                            <label asp-for="Age">Age</label>
+                            <span asp-validation-for="Age" class="text-danger small"></span>
                         </div>
+
                         <div class="mb-3">
-                            <label asp-for="Occupation" class="form-label">Occupation</label>
+                            <label asp-for="Occupation" class="form-label fw-semibold">Occupation</label>
                             <select asp-for="Occupation" class="form-select">
                                 <option value="">-- Select Occupation --</option>
                                 <option>Student</option>
@@ -32,27 +38,32 @@
                                 <option>Retired</option>
                                 <option>Other</option>
                             </select>
-                            <span asp-validation-for="Occupation" class="text-danger"></span>
+                            <span asp-validation-for="Occupation" class="text-danger small"></span>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" type="email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" type="email" class="form-control" placeholder="Email" />
+                            <label asp-for="Email">Email address</label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Password</label>
-                            <input asp-for="Password" type="password" class="form-control" />
-                            <span asp-validation-for="Password" class="text-danger"></span>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                            <label asp-for="Password">Password</label>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">License Picture</label>
+                            <label class="form-label fw-semibold">Upload License Picture</label>
                             <input type="file" name="licensePicture" class="form-control" />
                         </div>
-                        <button type="submit" class="btn btn-success w-100"><i class="bi bi-check-circle"></i> Register</button>
+
+                        <button type="submit" class="btn btn-success w-100 py-2 shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i> Register
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-

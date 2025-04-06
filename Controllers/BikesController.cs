@@ -136,15 +136,24 @@ namespace RideRental.Controllers
         // USER: Browse Available Bikes
         public async Task<IActionResult> UserDashboard()
         {
-            var role = HttpContext.Session.GetString("UserRole");
-            if (role != "User") return Unauthorized();
+            var email = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(email)) return Unauthorized();
 
             var bikes = await _context.Bikes
                 .Where(b => b.AvailabilityStatus == "Available")
                 .ToListAsync();
 
+            var userLogs = await _context.RentalLogs
+                .Where(l => l.UserEmail == email && l.Action == "Approved")
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+
+            var recommended = BikeRecommender.RecommendForUser(userLogs, bikes, top: 3);
+            ViewBag.Recommended = recommended;
+
             return View("~/Views/User/UserDashboard.cshtml", bikes);
         }
+
 
 
         // USER: Rent a bike  
