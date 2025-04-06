@@ -1,0 +1,27 @@
+﻿@model IEnumerable<RideRental.Models.RentalRequest>
+
+<h2>Your Rental History</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Bike</th>
+            <th>Start Time</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Requested On</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Bike.Model (@r.Bike.Year)</td>
+                <td>@r.StartDateTime</td>
+                <td>@r.DurationHours hr</td>
+                <td>@r.Status</td>
+                <td>@r.RequestDate</td>
+            </tr>
+        }
+    </tbody>
+</table>

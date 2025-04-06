@@ -22,19 +22,40 @@
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">RideRental</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                     <ul class="navbar-nav">
                         @if (HttpContextAccessor.HttpContext.Session.GetString("UserEmail") == "admin@site.com")
-                        { <li class="nav-item">
-                                <a class="nav-link text-dark"  asp-controller="Bikes" asp-action="Index">Manage Bikes</a>
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Bikes" asp-action="Index">Manage Bikes</a>
                             </li>
-
-
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="RentalRequests" asp-action="Logs">Rental Logs</a>
+                            </li>
                         }
+                        else if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "User")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Bikes" asp-action="UserDashboard">Browse Bikes</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Bikes" asp-action="RentalHistory">Rental History</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Bikes" asp-action="Recommended">Recommended</a>
+                            </li>
+                        }
+                        @if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="RentalRequests" asp-action="Index">Rental Requests</a>
+                            </li>
+                        }
+
                         @if (HttpContextAccessor.HttpContext.Session.GetString("UserEmail") == null)
                         {
                             <li class="nav-item">

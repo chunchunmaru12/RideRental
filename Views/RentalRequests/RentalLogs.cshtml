@@ -1,0 +1,25 @@
+﻿@model IEnumerable<RideRental.Models.RentalLog>
+
+<h2>Rental Activity Log</h2>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Action</th>
+            <th>Details</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.UserEmail</td>
+                <td>@log.Action</td>
+                <td>@log.Details</td>
+                <td>@log.Timestamp</td>
+            </tr>
+        }
+    </tbody>
+</table>

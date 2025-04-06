@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<RideRental.Models.Bike>
-
 @{
     ViewData["Title"] = "Available Bikes";
 }
 <h2>Available Bikes</h2>
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>
 }
-@if (Model == null)
+@if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">Model is null — bikes not passed to view!</div>
+    <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
 <div class="row">
@@ -26,7 +26,41 @@
                         Power: @bike.Power<br />
                         Price: $@bike.RentalPricePerHour/hr
                     </p>
-                    <a asp-action="Rent" asp-route-id="@bike.BikeID" class="btn btn-primary w-100">Rent Now</a>
+                    <!-- Button to open modal -->
+                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#rentModal-@bike.BikeID">
+                        Rent Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rent Modal for this bike -->
+        <div class="modal fade" id="rentModal-@bike.BikeID" tabindex="-1" aria-labelledby="rentModalLabel-@bike.BikeID" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form asp-action="Rent" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="rentModalLabel-@bike.BikeID">Rent: @bike.Model</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="BikeID" value="@bike.BikeID" />
+
+                            <div class="mb-3">
+                                <label>Start Date & Time</label>
+                                <input name="StartDateTime" type="datetime-local" class="form-control" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Rental Duration (in hours)</label>
+                                <input name="DurationHours" type="number" min="1" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

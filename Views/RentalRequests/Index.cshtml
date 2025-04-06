@@ -1,0 +1,51 @@
+﻿@model IEnumerable<RideRental.Models.RentalRequest>
+@{
+    ViewData["Title"] = "Rental Requests";
+}
+
+<h2>Rental Requests</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Bike</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var req in Model)
+        {
+            <tr>
+                <td>@req.UserEmail</td>
+                <td>@req.Bike.Model (@req.Bike.Year)</td>
+                <td>@req.Status</td>
+                <td>@req.RequestDate.ToShortDateString()</td>
+                <td>
+                    <strong>From:</strong> @req.StartDateTime <br />
+                    <strong>Duration:</strong> @req.DurationHours hours
+                </td>
+
+                <td>
+                    @if (req.Status == "Pending")
+                    {
+                        <form method="post" asp-action="Approve" asp-route-id="@req.RequestID" class="d-inline">
+                            <button class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                        <form method="post" asp-action="Reject" asp-route-id="@req.RequestID" class="d-inline">
+                            <button class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

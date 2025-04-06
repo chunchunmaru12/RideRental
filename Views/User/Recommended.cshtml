@@ -1,0 +1,30 @@
+﻿@model IEnumerable<RideRental.Models.Bike>
+
+<h2>Recommended Bikes</h2>
+
+@if (!Model.Any())
+{
+    <p>No recommendations found. Rent a bike first to get personalized suggestions!</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var bike in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@bike.ImageURL" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@bike.Model (@bike.Year)</h5>
+                        <p class="card-text">
+                            Category: @bike.Category<br />
+                            Power: @bike.Power<br />
+                            Price: $@bike.RentalPricePerHour/hr
+                        </p>
+                        <a asp-action="UserDashboard" class="btn btn-outline-primary w-100">View More</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RideRental.Data;
 using RideRental.Models;
+using RideRental.Services;
 
 namespace RideRental.Controllers
 {
@@ -146,19 +147,92 @@ namespace RideRental.Controllers
         }
 
 
-        // USER: Rent a bike (stub logic)
-        public async Task<IActionResult> Rent(int id)
+        // USER: Rent a bike  
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rent(int BikeID, DateTime StartDateTime, int DurationHours)
         {
-            var bike = await _context.Bikes.FindAsync(id);
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var role = HttpContext.Session.GetString("UserRole");
+            if (role != "User") return Unauthorized();
+            if (StartDateTime < DateTime.Now)
+            {
+                TempData["Error"] = "Start date and time cannot be in the past.";
+                return RedirectToAction("UserDashboard");
+            }
+
+            var hasActive = await _context.RentalRequests.AnyAsync(r =>
+                r.UserEmail == userEmail &&
+                (r.Status == "Pending" || r.Status == "Approved"));
+
+            if (hasActive)
+            {
+                TempData["Error"] = "You already have a pending or approved request.";
+                return RedirectToAction("UserDashboard");
+            }
+
+            var bike = await _context.Bikes.FindAsync(BikeID);
             if (bike == null || bike.AvailabilityStatus != "Available")
                 return NotFound();
 
-            bike.AvailabilityStatus = "Rented";
-            _context.Update(bike);
+            var request = new RentalRequest
+            {
+                BikeID = BikeID,
+                UserEmail = userEmail,
+                StartDateTime = StartDateTime,
+                DurationHours = DurationHours
+            };
+            _context.RentalLogs.Add(new RentalLog
+            {
+                UserEmail = userEmail,
+                Action = "Requested",
+                Details = $"Bike: {bike.Model}, Start: {StartDateTime}, Duration: {DurationHours}h",
+                BikeModel = bike.Model,
+                Category = bike.Category,
+                EngineType = bike.EngineType,
+                Power = bike.Power,
+                ColorOptions = bike.ColorOptions
+            });
+
+            _context.RentalRequests.Add(request);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Bike rented successfully!";
-            return RedirectToAction("UserView");
+            TempData["Success"] = "Rental request submitted.";
+            return RedirectToAction("UserDashboard");
         }
+        //history for retals
+        public async Task<IActionResult> RentalHistory()
+        {
+            var email = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(email)) return Unauthorized();
+
+            var requests = await _context.RentalRequests
+                .Include(r => r.Bike)
+                .Where(r => r.UserEmail == email)
+                .OrderByDescending(r => r.RequestDate)
+                .ToListAsync();
+
+            return View("~/Views/User/RentalHistory.cshtml", requests);
+        }
+        //recommendation:
+        public async Task<IActionResult> Recommended()
+        {
+            var email = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(email)) return Unauthorized();
+
+            var userLogs = await _context.RentalLogs
+                .Where(l => l.UserEmail == email && l.Action == "Approved")
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+
+            var availableBikes = await _context.Bikes
+                .Where(b => b.AvailabilityStatus == "Available")
+                .ToListAsync();
+
+            var recommended = BikeRecommender.RecommendForUser(userLogs, availableBikes, top: 3);
+            return View("~/Views/User/Recommended.cshtml", recommended);
+        }
+
+
     }
 }
