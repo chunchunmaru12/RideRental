@@ -104,6 +104,34 @@ namespace RideRental.Controllers
             return View("~/Views/RentalRequests/RentalLogs.cshtml", logs);
         }
 
+        //return 
+        [HttpPost]
+        public async Task<IActionResult> Return(int id)
+        {
+            var request = await _context.RentalRequests.Include(r => r.Bike).FirstOrDefaultAsync(r => r.RequestID == id);
+            if (request == null || request.Status != "Approved") return NotFound();
+
+            request.Status = "Returned";
+            request.Bike.AvailabilityStatus = "Available";
+
+            _context.RentalLogs.Add(new RentalLog
+            {
+                UserEmail = request.UserEmail,
+                Action = "Returned",
+                Details = $"Returned rental for {request.Bike.Model}",
+                BikeModel = request.Bike.Model,
+                Category = request.Bike.Category,
+                EngineType = request.Bike.EngineType,
+                Power = request.Bike.Power,
+                ColorOptions = request.Bike.ColorOptions
+            });
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Bike returned successfully!";
+            return RedirectToAction("Index");
+        }
+
+
 
     }
 

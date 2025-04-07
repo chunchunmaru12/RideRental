@@ -44,7 +44,15 @@
                             <button class="btn btn-danger btn-sm">Reject</button>
                         </form>
                     }
+                    else if (req.Status == "Approved")
+                    {
+                        <form method="post" asp-action="Return" asp-route-id="@req.RequestID" class="d-inline">
+                            <button class="btn btn-warning btn-sm">Return</button>
+                        </form>
+                    }
                 </td>
+
+
             </tr>
         }
     </tbody>

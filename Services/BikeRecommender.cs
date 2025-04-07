@@ -1,20 +1,30 @@
 ﻿namespace RideRental.Services
 {
     using RideRental.Models;
+    using System;
 
     public static class BikeRecommender
-    { 
+    {
+        // Main similarity calculator using mixed features
         public static double CosineSimilarity(Bike a, Bike b)
         {
-            var aVec = new[] {
-            ParsePower(a.Power),
-            a.Year
-        };
+            var aVec = new[]
+            {
+                ParsePower(a.Power),
+                HashString(a.Category),
+                HashString(a.EngineType),
+                HashString(a.ColorOptions),
+                HashString(a.Model)
+            };
 
-            var bVec = new[] {
-            ParsePower(b.Power),
-            b.Year
-        };
+            var bVec = new[]
+            {
+                ParsePower(b.Power),
+                HashString(b.Category),
+                HashString(b.EngineType),
+                HashString(b.ColorOptions),
+                HashString(b.Model)
+            };
 
             double dot = 0, aMag = 0, bMag = 0;
             for (int i = 0; i < aVec.Length; i++)
@@ -24,19 +34,26 @@
                 bMag += bVec[i] * bVec[i];
             }
 
-            return dot / (Math.Sqrt(aMag) * Math.Sqrt(bMag));
+            return (aMag != 0 && bMag != 0) ? dot / (Math.Sqrt(aMag) * Math.Sqrt(bMag)) : 0;
         }
- 
+
+        // Convert power string to number (e.g., "150cc" -> 150)
         private static double ParsePower(string power)
         {
             var digits = new string(power?.Where(char.IsDigit).ToArray());
             return double.TryParse(digits, out var result) ? result : 0;
         }
 
-        // MAIN: Recommend bikes for user based on past rentals
+        // Hash string consistently to double (for categorical features)
+        private static double HashString(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return 0;
+            return Math.Abs(input.GetHashCode() % 1000); // Keep values in manageable range
+        }
+
+        // Recommend bikes based on user's last approved rental
         public static List<Bike> RecommendForUser(List<RentalLog> userLogs, List<Bike> availableBikes, int top = 3)
         {
-            // Group logs by bike and select the most recent bike
             var lastRented = userLogs
                 .Where(l => l.Action == "Approved")
                 .OrderByDescending(l => l.Timestamp)
@@ -44,15 +61,18 @@
 
             if (lastRented == null) return new();
 
-            // Reconstruct a pseudo-bike from RentalLog (acts as reference)
             var referenceBike = new Bike
             {
                 Power = lastRented.Power,
-                Year = 0, // you can omit or average it if not available
+                Category = lastRented.Category,
+                EngineType = lastRented.EngineType,
+                ColorOptions = lastRented.ColorOptions,
+                Model = lastRented.BikeModel
             };
 
             return availableBikes
-                .Select(b => new {
+                .Select(b => new
+                {
                     Bike = b,
                     Score = CosineSimilarity(referenceBike, b)
                 })
@@ -62,5 +82,4 @@
                 .ToList();
         }
     }
-
 }

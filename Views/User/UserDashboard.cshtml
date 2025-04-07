@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Available Bikes";
 }
-<h2>Available Bikes</h2>
+
 
 @if (TempData["Success"] != null)
 {
@@ -12,7 +12,12 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
+@if (ViewBag.Recommended != null && ((List<Bike>)ViewBag.Recommended).Any())
+{
+    @await Html.PartialAsync("~/Views/User/Recommended.cshtml", ViewBag.Recommended as List<Bike>)
 
+}
+<h2>Available Bikes</h2>
 <div class="row">
     @foreach (var bike in Model)
     {
@@ -27,9 +32,17 @@
                         Price: $@bike.RentalPricePerHour/hr
                     </p>
                     <!-- Button to open modal -->
-                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#rentModal-@bike.BikeID">
-                        Rent Now
-                    </button>
+                    @if (bike.AvailabilityStatus == "Available")
+                    {
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#rentModal-@bike.BikeID">
+                            Rent Now
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary w-100" disabled>Not Available</button>
+                    }
+
                 </div>
             </div>
         </div>
@@ -66,9 +79,4 @@
         </div>
     }
 </div>
-@if (ViewBag.Recommended != null && ((List<Bike>)ViewBag.Recommended).Any())
-{ 
-    @await Html.PartialAsync("~/Views/User/Recommended.cshtml", ViewBag.Recommended as List<Bike>)
-
-}
 

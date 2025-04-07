@@ -139,9 +139,8 @@ namespace RideRental.Controllers
             var email = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-            var bikes = await _context.Bikes
-                .Where(b => b.AvailabilityStatus == "Available")
-                .ToListAsync();
+            var bikes = await _context.Bikes.ToListAsync();
+
 
             var userLogs = await _context.RentalLogs
                 .Where(l => l.UserEmail == email && l.Action == "Approved")
@@ -229,18 +228,18 @@ namespace RideRental.Controllers
             var email = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-            var userLogs = await _context.RentalLogs
-                .Where(l => l.UserEmail == email && l.Action == "Approved")
-                .OrderByDescending(l => l.Timestamp)
+            var allLogs = await _context.RentalLogs
+                .Where(l => l.Action == "Approved"||l.Action=="Returned")
                 .ToListAsync();
 
             var availableBikes = await _context.Bikes
                 .Where(b => b.AvailabilityStatus == "Available")
                 .ToListAsync();
 
-            var recommended = BikeRecommender.RecommendForUser(userLogs, availableBikes, top: 3);
+            var recommended = CollaborativeRecommender.RecommendForUser(email, allLogs, availableBikes, 3);
             return View("~/Views/User/Recommended.cshtml", recommended);
         }
+
 
 
     }
