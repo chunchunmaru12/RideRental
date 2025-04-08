@@ -239,6 +239,30 @@ namespace RideRental.Controllers
             var recommended = CollaborativeRecommender.RecommendForUser(email, allLogs, availableBikes, 3);
             return View("~/Views/User/Recommended.cshtml", recommended);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetRecommendationsByInput(string category, string engineType, double? minPower)
+        {
+            var availableBikes = await _context.Bikes
+                .Where(b => b.AvailabilityStatus == "Available")
+                .ToListAsync();
+
+            // Build a pseudo "log" from input
+            var inputLog = new RentalLog
+            {
+                Category = category,
+                EngineType = engineType,
+                Power = minPower?.ToString() ?? "0",
+                BikeModel = "InputBasedModel"
+            };
+
+            // Convert input to a user vector
+            var inputVector = CollaborativeRecommender
+                .RecommendForUserFromLog(inputLog, availableBikes, 3); // new method you’ll define
+
+            return View("~/Views/User/Recommended.cshtml", inputVector);
+        }
+
+
 
 
 

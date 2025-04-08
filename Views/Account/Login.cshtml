@@ -6,12 +6,13 @@
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
             <div class="card border-0 shadow-lg ">
-                <div class="card-header bg-dark text-white text-center py-4">
+                <div class="card-header bg-success text-white text-center py-4">
                     <h4 class="mb-0">
                         <i class="bi bi-person-circle fs-3 me-2"></i> Welcome Back
                     </h4>
                     <p class="mb-0 small">Sign in to continue your ride</p>
                 </div>
+
                 <div class="card-body p-4">
                     <form asp-action="Login" method="post">
                         <div class="form-floating mb-3">
@@ -23,9 +24,10 @@
                             <label for="passwordInput">Password</label>
                         </div>
 
-                        <button type="submit" class="btn btn-dark w-100 shadow-sm py-2">
+                        <button type="submit" class="btn btn-success w-100 shadow-sm py-2">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Login
                         </button>
+
 
                         @if (ViewBag.Message != null)
                         {

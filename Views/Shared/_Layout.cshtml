@@ -13,12 +13,12 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/RideRental.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body >
     <header>
         @using Microsoft.AspNetCore.Http
         @inject IHttpContextAccessor HttpContextAccessor
 
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm mb-3">
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm mb-3" style="background: url('@Url.Content("~/uploads/bg.png")') no-repeat center center; background-size: cover;">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">RideRental</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"

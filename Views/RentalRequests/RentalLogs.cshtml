@@ -34,7 +34,6 @@
     <script>
         const rawData = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ChartData));
 
-        // Extract unique dates
         const labels = [...new Set(rawData.map(x => new Date(x.Date).toISOString().split('T')[0]))];
 
         const getCounts = (action) =>

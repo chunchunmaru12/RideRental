@@ -12,11 +12,8 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
-@if (ViewBag.Recommended != null && ((List<Bike>)ViewBag.Recommended).Any())
-{
-    @await Html.PartialAsync("~/Views/User/Recommended.cshtml", ViewBag.Recommended as List<Bike>)
+ 
 
-}
 <h2>Available Bikes</h2>
 <div class="row">
     @foreach (var bike in Model)
@@ -34,14 +31,17 @@
                     <!-- Button to open modal -->
                     @if (bike.AvailabilityStatus == "Available")
                     {
-                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#rentModal-@bike.BikeID">
+                        <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#rentModal-@bike.BikeID">
                             Rent Now
                         </button>
                     }
                     else
                     {
-                        <button class="btn btn-secondary w-100" disabled>Not Available</button>
+                        <button class="btn btn-outline-secondary w-100" disabled>
+                            <i class="bi bi-clock-history"></i> Currently Rented
+                        </button>
                     }
+
 
                 </div>
             </div>
@@ -70,7 +70,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                            <button type="submit" class="btn btn-success">Submit Request</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </form>
