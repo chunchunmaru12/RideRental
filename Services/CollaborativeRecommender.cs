@@ -33,7 +33,6 @@ namespace RideRental.Services
                 .Select(x => x.Bike)
                 .ToList();
         }
-
         public static List<Bike> RecommendForUserFromLog(RentalLog inputLog, List<Bike> availableBikes, int top = 3)
         {
             var userVector = BikeToVector(inputLog);
@@ -52,6 +51,9 @@ namespace RideRental.Services
                 .Select(x => x.Bike)
                 .ToList();
         }
+
+
+
 
         private static double[] BikeToVector(Bike b)
         {
@@ -135,5 +137,28 @@ namespace RideRental.Services
 
             return dot / (Math.Sqrt(aMag) * Math.Sqrt(bMag) + 1e-10); // prevent divide-by-zero
         }
+        public static List<Bike> RecommendFromUserLogs(List<RentalLog> userLogs, List<Bike> availableBikes, int top = 3)
+        {
+            if (!userLogs.Any()) return new();
+
+            var userVector = userLogs
+                .Select(BikeToVector)
+                .Aggregate((a, b) => a.Zip(b, (x, y) => x + y).ToArray());
+
+            double magnitude = Math.Sqrt(userVector.Sum(x => x * x));
+            userVector = userVector.Select(x => x / magnitude).ToArray();
+
+            return availableBikes
+                .Select(b => new
+                {
+                    Bike = b,
+                    Score = CosineSimilarity(userVector, BikeToVector(b))
+                })
+                .OrderByDescending(x => x.Score)
+                .Take(top)
+                .Select(x => x.Bike)
+                .ToList();
+        }
     }
+
 }

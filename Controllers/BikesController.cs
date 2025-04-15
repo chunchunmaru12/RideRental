@@ -14,22 +14,27 @@ namespace RideRental.Controllers
         {
             _context = context;
         }
-
+        private bool IsUserLoggedIn()
+        {
+            return !string.IsNullOrEmpty(HttpContext.Session.GetString("UserEmail"));
+        }
         // Admin: List bikes
         public async Task<IActionResult> Index()
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             if (HttpContext.Session.GetString("UserRole") == "Admin")
                 return View(await _context.Bikes.ToListAsync());
             return RedirectToAction("UserDashboard", "Account");
 
         }
+        
 
         // Admin: Create Bike
         // GET: Bike/Create
         public IActionResult Create()
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Unauthorized();
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
+             
 
             return View();
         }
@@ -39,7 +44,7 @@ namespace RideRental.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Bike bike, IFormFile imageFile)
         {
-             
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
 
             if (imageFile != null && imageFile.Length > 0)
             {
@@ -70,8 +75,8 @@ namespace RideRental.Controllers
         // Admin: Edit
         public async Task<IActionResult> Edit(int? id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Unauthorized();
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
+             
 
             if (id == null) return NotFound();
 
@@ -83,6 +88,7 @@ namespace RideRental.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Bike bike)
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             if (id != bike.BikeID)
                 return NotFound();
 
@@ -110,8 +116,8 @@ namespace RideRental.Controllers
         // Admin: Delete
         public async Task<IActionResult> Delete(int? id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Unauthorized();
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
+             
 
             var bike = await _context.Bikes.FindAsync(id);
             return bike == null ? NotFound() : View(bike);
@@ -121,6 +127,7 @@ namespace RideRental.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             var bike = await _context.Bikes.FindAsync(id);
             if (bike != null)
             {
@@ -134,24 +141,63 @@ namespace RideRental.Controllers
 
 
         // USER: Browse Available Bikes
-        public async Task<IActionResult> UserDashboard()
+        public async Task<IActionResult> UserDashboard(int page = 1, int pageSize = 6)
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
+
             var email = HttpContext.Session.GetString("UserEmail");
-            if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-            var bikes = await _context.Bikes.ToListAsync();
-
-
-            var userLogs = await _context.RentalLogs
-                .Where(l => l.UserEmail == email && l.Action == "Approved")
-                .OrderByDescending(l => l.Timestamp)
+            var allLogs = await _context.RentalLogs
+                .Where(l => l.Action == "Approved" || l.Action == "Returned")
                 .ToListAsync();
 
-            var recommended = BikeRecommender.RecommendForUser(userLogs, bikes, top: 3);
+            var userLogs = allLogs.Where(l => l.UserEmail == email).ToList();
+
+            var bikes = await _context.Bikes.ToListAsync();
+            var availableBikes = bikes.Where(b => b.AvailabilityStatus == "Available").ToList();
+
+            List<Bike> recommended;
+
+            if (userLogs.Any())
+            {
+                recommended = CollaborativeRecommender.RecommendFromUserLogs(userLogs, availableBikes, 3);
+            }
+            else
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (user != null)
+                {
+                    var pseudoLog = new RentalLog
+                    {
+                        Category = user.PreferredCategory,
+                        EngineType = user.PreferredEngineType,
+                        Power = user.PreferredMinPower?.ToString() ?? "0",
+                        BikeModel = "PreferenceBasedModel"
+                    };
+
+                    recommended = CollaborativeRecommender.RecommendForUserFromLog(pseudoLog, availableBikes, 3);
+                }
+                else
+                {
+                    recommended = new();
+                }
+            }
+
             ViewBag.Recommended = recommended;
 
-            return View("~/Views/User/UserDashboard.cshtml", bikes);
+            // Simple manual pagination (optional)
+            var pagedBikes = bikes
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(bikes.Count / (double)pageSize);
+
+            return View("~/Views/User/UserDashboard.cshtml", pagedBikes);
         }
+
+
 
 
 
@@ -160,6 +206,7 @@ namespace RideRental.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Rent(int BikeID, DateTime StartDateTime, int DurationHours)
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             var userEmail = HttpContext.Session.GetString("UserEmail");
             var role = HttpContext.Session.GetString("UserRole");
             if (role != "User") return Unauthorized();
@@ -211,6 +258,7 @@ namespace RideRental.Controllers
         //history for retals
         public async Task<IActionResult> RentalHistory()
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             var email = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(email)) return Unauthorized();
 
@@ -225,44 +273,52 @@ namespace RideRental.Controllers
         //recommendation:
         public async Task<IActionResult> Recommended()
         {
-            var email = HttpContext.Session.GetString("UserEmail");
-            if (string.IsNullOrEmpty(email)) return Unauthorized();
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
 
+            var email = HttpContext.Session.GetString("UserEmail");
             var allLogs = await _context.RentalLogs
-                .Where(l => l.Action == "Approved"||l.Action=="Returned")
+                .Where(l => l.Action == "Approved" || l.Action == "Returned")
                 .ToListAsync();
 
             var availableBikes = await _context.Bikes
                 .Where(b => b.AvailabilityStatus == "Available")
                 .ToListAsync();
 
-            var recommended = CollaborativeRecommender.RecommendForUser(email, allLogs, availableBikes, 3);
+            // Check if user has rental history
+            var userLogs = allLogs
+                .Where(l => l.UserEmail == email)
+                .ToList();
+
+            List<Bike> recommended;
+
+            if (userLogs.Any())
+            {
+                recommended = CollaborativeRecommender.RecommendFromUserLogs(userLogs, availableBikes, 3);
+            }
+            else
+            {
+                // Use saved preferences if no logs
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (user != null)
+                {
+                    var pseudoLog = new RentalLog
+                    {
+                        Category = user.PreferredCategory,
+                        EngineType = user.PreferredEngineType,
+                        Power = user.PreferredMinPower?.ToString() ?? "0",
+                        BikeModel = "PreferenceBasedModel"
+                    };
+
+                    recommended = CollaborativeRecommender.RecommendForUserFromLog(pseudoLog, availableBikes, 3);
+                }
+                else
+                {
+                    recommended = new(); // Fallback empty
+                }
+            }
+
             return View("~/Views/User/Recommended.cshtml", recommended);
         }
-        [HttpGet]
-        public async Task<IActionResult> GetRecommendationsByInput(string category, string engineType, double? minPower)
-        {
-            var availableBikes = await _context.Bikes
-                .Where(b => b.AvailabilityStatus == "Available")
-                .ToListAsync();
-
-            // Build a pseudo "log" from input
-            var inputLog = new RentalLog
-            {
-                Category = category,
-                EngineType = engineType,
-                Power = minPower?.ToString() ?? "0",
-                BikeModel = "InputBasedModel"
-            };
-
-            // Convert input to a user vector
-            var inputVector = CollaborativeRecommender
-                .RecommendForUserFromLog(inputLog, availableBikes, 3); // new method you’ll define
-
-            return View("~/Views/User/Recommended.cshtml", inputVector);
-        }
-
-
 
 
 

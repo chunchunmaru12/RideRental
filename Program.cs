@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RideRental.Data;
 using RideRental.Models;
-
+using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
+
+
 // Apply migrations and seed Admin
 using (var scope = app.Services.CreateScope())
 {
@@ -23,18 +25,24 @@ using (var scope = app.Services.CreateScope())
 
     if (!context.Users.Any(u => u.Role == "Admin"))
     {
-        context.Users.Add(new User
+        var hasher = new PasswordHasher<User>();
+        var admin = new User
         {
             FullName = "Admin",
             Age = 0,
             Occupation = "Other",
-            Email = "admin@site.com",
-            Password = "admin123",
+            Email = "admin@riderental.com",
             Role = "Admin"
-        });
+        };
+
+        // Hash the password before storing
+        admin.Password = hasher.HashPassword(admin, "admin123");
+
+        context.Users.Add(admin);
         context.SaveChanges();
     }
 }
+
 
 // Configure middleware pipeline
 if (!app.Environment.IsDevelopment())

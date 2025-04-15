@@ -13,12 +13,14 @@ namespace RideRental.Controllers
         {
             _context = context;
         }
-
+        private bool IsUserLoggedIn()
+        {
+            return !string.IsNullOrEmpty(HttpContext.Session.GetString("UserEmail"));
+        }
         public async Task<IActionResult> Index()
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Unauthorized();
-
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
+            ViewBag.HasPendingRequests = await _context.RentalRequests.AnyAsync(r => r.Status == "Pending");
             var requests = await _context.RentalRequests
                 .Include(r => r.Bike)
                 .OrderByDescending(r => r.RequestDate)
@@ -30,6 +32,7 @@ namespace RideRental.Controllers
         [HttpPost]
         public async Task<IActionResult> Approve(int id)
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             var request = await _context.RentalRequests.Include(r => r.Bike).FirstOrDefaultAsync(r => r.RequestID == id);
             if (request == null) return NotFound();
 
@@ -56,6 +59,7 @@ namespace RideRental.Controllers
         [HttpPost]
         public async Task<IActionResult> Reject(int id)
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             var request = await _context.RentalRequests
                 .Include(r => r.Bike)
                 .FirstOrDefaultAsync(r => r.RequestID == id);
@@ -84,8 +88,7 @@ namespace RideRental.Controllers
 
         public async Task<IActionResult> Logs()
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin") return Unauthorized();
-
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             var logs = await _context.RentalLogs
                 .OrderByDescending(l => l.Timestamp)
                 .ToListAsync();
@@ -108,6 +111,7 @@ namespace RideRental.Controllers
         [HttpPost]
         public async Task<IActionResult> Return(int id)
         {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
             var request = await _context.RentalRequests.Include(r => r.Bike).FirstOrDefaultAsync(r => r.RequestID == id);
             if (request == null || request.Status != "Approved") return NotFound();
 

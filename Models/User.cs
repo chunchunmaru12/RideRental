@@ -23,6 +23,10 @@
         public string? LicensePicturePath { get; set; }
 
         public string Role { get; set; } = "User"; // or "Admin"
+        public string? PreferredCategory { get; set; }
+        public string? PreferredEngineType { get; set; }
+        public double? PreferredMinPower { get; set; }
+
     }
 
 }

@@ -1,0 +1,35 @@
+﻿@model RideRental.Models.User
+
+<h2>Select Your Preferences</h2>
+<form asp-action="SavePreferences" method="post">
+    <input type="hidden" asp-for="Email" />
+
+    <div class="mb-3">
+        <label asp-for="PreferredCategory" class="form-label">Preferred Category</label>
+        <select asp-for="PreferredCategory" class="form-select">
+            <option value="sport">Sport</option>
+            <option value="cruiser">Cruiser</option>
+            <option value="touring">Touring</option>
+            <option value="allround">Allround</option>
+            <option value="classic">Classic</option>
+            <option value="offroad">Offroad</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PreferredEngineType" class="form-label">Preferred Engine Type</label>
+        <select asp-for="PreferredEngineType" class="form-select">
+            <option value="single">Single</option>
+            <option value="twin">Twin</option>
+            <option value="v2">V2</option>
+            <option value="four-stroke">Four-Stroke</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PreferredMinPower" class="form-label">Minimum Power (in CC)</label>
+        <input asp-for="PreferredMinPower" class="form-control" type="number" min="50" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Preferences</button>
+</form>
