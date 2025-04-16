@@ -33,11 +33,23 @@ namespace RideRental.Controllers
         public async Task<IActionResult> Approve(int id)
         {
             if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
-            var request = await _context.RentalRequests.Include(r => r.Bike).FirstOrDefaultAsync(r => r.RequestID == id);
+
+            var request = await _context.RentalRequests
+                .Include(r => r.Bike)
+                .FirstOrDefaultAsync(r => r.RequestID == id);
+
             if (request == null) return NotFound();
+
+            //  Check if the bike is already rented
+            if (request.Bike.AvailabilityStatus == "Rented")
+            {
+                TempData["Error"] = "This bike has already been rented by another user.";
+                return RedirectToAction("Index");
+            }
 
             request.Status = "Approved";
             request.Bike.AvailabilityStatus = "Rented";
+
             _context.RentalLogs.Add(new RentalLog
             {
                 UserEmail = request.UserEmail,
@@ -50,11 +62,12 @@ namespace RideRental.Controllers
                 ColorOptions = request.Bike.ColorOptions
             });
 
-
             await _context.SaveChangesAsync();
+
             TempData["Success"] = "Rental request approved!";
             return RedirectToAction("Index");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Reject(int id)

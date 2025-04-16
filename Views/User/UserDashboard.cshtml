@@ -30,7 +30,7 @@
                             Power: @rec.Power<br />
                             Price: $@rec.RentalPricePerHour/hr
                         </p>
-                        <a asp-controller="Bikes" asp-action="UserDashboard" class="btn btn-outline-success w-100">View</a>
+                        <a asp-controller="Bikes" asp-action="Details" asp-route-id="@rec.BikeID" class="btn btn-outline-success w-100">View</a>
                     </div>
                 </div>
             </div>
@@ -38,13 +38,24 @@
     </div>
 }
 
+<form method="get" class="d-flex justify-content-center align-items-center mb-5 animate__animated animate__fadeInDown">
+    <div class="input-group shadow-sm" style="max-width: 500px;">
+        <span class="input-group-text bg-success text-white border-0">
+            <i class="bi bi-search"></i>
+        </span>
+        <input type="text" name="searchModel" value="@ViewBag.SearchQuery" class="form-control border-success" placeholder="Search by model..." />
+        <button type="submit" class="btn btn-success px-4">
+            Search
+        </button>
+    </div>
+</form>
 
 <h2>Available Bikes</h2>
 <div class="row">
     @foreach (var bike in Model)
     {
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
+        <div class="col-md-4 mb-4 animate__animated animate__zoomIn">
+            <div class="card h-100 shadow-sm border border-success">
                 <img src="@bike.ImageURL" class="card-img-top" style="height: 200px; object-fit: cover;" />
                 <div class="card-body">
                     <h5 class="card-title">@bike.Model (@bike.Year)</h5>
@@ -53,7 +64,6 @@
                         Power: @bike.Power<br />
                         Price: $@bike.RentalPricePerHour/hr
                     </p>
-                    <!-- Button to open modal -->
                     @if (bike.AvailabilityStatus == "Available")
                     {
                         <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#rentModal-@bike.BikeID">
@@ -66,11 +76,10 @@
                             <i class="bi bi-clock-history"></i> Currently Rented
                         </button>
                     }
-
-
                 </div>
             </div>
         </div>
+
 
         <!-- Rent Modal for this bike -->
         <div class="modal fade" id="rentModal-@bike.BikeID" tabindex="-1" aria-labelledby="rentModalLabel-@bike.BikeID" aria-hidden="true">

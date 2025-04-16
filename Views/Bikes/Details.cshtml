@@ -1,0 +1,86 @@
+﻿@model RideRental.Models.Bike
+@{
+    ViewData["Title"] = "Bike Details";
+}
+
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <!-- Left Side: Bike Image -->
+        <div class="col-md-6 mb-4">
+            <div class="border rounded shadow-sm p-2 bg-white">
+                <img src="@Model.ImageURL" alt="@Model.Model" class="img-fluid w-100 rounded" style="max-height: 450px; object-fit: cover;" />
+            </div>
+        </div>
+
+        <!-- Right Side: Bike Info -->
+        <div class="col-md-6">
+            <h2 class="text-success fw-bold mb-3">@Model.Model (@Model.Year)</h2>
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item"><strong>Category:</strong> @Model.Category</li>
+                <li class="list-group-item"><strong>Engine Type:</strong> @Model.EngineType</li>
+                <li class="list-group-item"><strong>Power:</strong> @Model.Power</li>
+                <li class="list-group-item"><strong>Color Options:</strong> @Model.ColorOptions</li>
+                <li class="list-group-item"><strong>Price per Hour:</strong> $@Model.RentalPricePerHour</li>
+                <li class="list-group-item">
+                    <strong>Status:</strong>
+                    @if (Model.AvailabilityStatus == "Available")
+                    {
+                        <span class="badge bg-success">Available</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Currently Rented</span>
+                    }
+                </li>
+            </ul>
+
+            @if (Model.AvailabilityStatus == "Available")
+            {
+                <button class="btn btn-success btn-lg w-100 mb-3" data-bs-toggle="modal" data-bs-target="#rentModal-@Model.BikeID">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Rent Now
+                </button>
+            }
+
+            <a asp-action="UserDashboard" asp-controller="Bikes" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back to Bikes
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Rent Modal -->
+<div class="modal fade" id="rentModal-@Model.BikeID" tabindex="-1" aria-labelledby="rentModalLabel-@Model.BikeID" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Rent" method="post">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="rentModalLabel-@Model.BikeID">
+                        <i class="bi bi-calendar-check me-1"></i> Rent: @Model.Model
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="BikeID" value="@Model.BikeID" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Start Date & Time</label>
+                        <input name="StartDateTime" type="datetime-local" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Rental Duration (in hours)</label>
+                        <input name="DurationHours" type="number" min="1" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i> Submit Request
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -37,9 +37,19 @@
                 <td>
                     @if (req.Status == "Pending")
                     {
-                        <form method="post" asp-action="Approve" asp-route-id="@req.RequestID" class="d-inline">
-                            <button class="btn btn-success btn-sm">Approve</button>
-                        </form>
+                        if (req.Bike.AvailabilityStatus == "Available")
+                        {
+                            <form method="post" asp-action="Approve" asp-route-id="@req.RequestID" class="d-inline">
+                                <button class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary btn-sm" disabled title="Already rented to another user">
+                                <i class="bi bi-lock-fill"></i> Unavailable
+                            </button>
+                        }
+
                         <form method="post" asp-action="Reject" asp-route-id="@req.RequestID" class="d-inline">
                             <button class="btn btn-danger btn-sm">Reject</button>
                         </form>

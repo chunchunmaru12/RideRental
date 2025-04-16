@@ -141,7 +141,7 @@ namespace RideRental.Controllers
 
 
         // USER: Browse Available Bikes
-        public async Task<IActionResult> UserDashboard(int page = 1, int pageSize = 6)
+        public async Task<IActionResult> UserDashboard(int page = 1, int pageSize = 6, string searchModel = "")
         {
             if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
 
@@ -153,11 +153,14 @@ namespace RideRental.Controllers
 
             var userLogs = allLogs.Where(l => l.UserEmail == email).ToList();
 
-            var bikes = await _context.Bikes.ToListAsync();
+            var bikes = await _context.Bikes
+                .OrderBy(b => b.Model) // Required for binary search
+                .ToListAsync();
+
             var availableBikes = bikes.Where(b => b.AvailabilityStatus == "Available").ToList();
 
+            //  RECOMMENDATION  
             List<Bike> recommended;
-
             if (userLogs.Any())
             {
                 recommended = CollaborativeRecommender.RecommendFromUserLogs(userLogs, availableBikes, 3);
@@ -182,19 +185,43 @@ namespace RideRental.Controllers
                     recommended = new();
                 }
             }
-
             ViewBag.Recommended = recommended;
+            ViewBag.SearchQuery = searchModel;
 
-            // Simple manual pagination (optional)
-            var pagedBikes = bikes
+            //   SEARCH (if user searches by Model)
+            List<Bike> filteredBikes = bikes;
+
+            if (!string.IsNullOrEmpty(searchModel))
+            {
+                filteredBikes = bikes
+                    .Where(b => b.Model != null && b.Model.Contains(searchModel, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+
+            //   PAGINATION
+            var pagedBikes = filteredBikes
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
             ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling(bikes.Count / (double)pageSize);
+            ViewBag.TotalPages = (int)Math.Ceiling(filteredBikes.Count / (double)pageSize);
 
             return View("~/Views/User/UserDashboard.cshtml", pagedBikes);
+        }
+
+
+
+        public async Task<IActionResult> Details(int id)
+        {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
+            var bike = await _context.Bikes.FirstOrDefaultAsync(b => b.BikeID == id);
+            if (bike == null)
+            {
+                return View("NotFound");
+            }
+            return View(bike);
         }
 
 
