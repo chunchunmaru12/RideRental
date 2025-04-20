@@ -55,7 +55,7 @@
         public static List<Bike> RecommendForUser(List<RentalLog> userLogs, List<Bike> availableBikes, int top = 3)
         {
             var lastRented = userLogs
-                .Where(l => l.Action == "Approved")
+                .Where(l => l.Action == "Approved" || l.Action == "Returned")
                 .OrderByDescending(l => l.Timestamp)
                 .FirstOrDefault();
 

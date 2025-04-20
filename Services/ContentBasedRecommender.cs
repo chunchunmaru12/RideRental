@@ -1,13 +1,59 @@
-﻿namespace RideRental.Services
-{
-    using System.Text.RegularExpressions;
-    using RideRental.Models;
+﻿using RideRental.Models;
 
-    public static class CollaborativeRecommender
+namespace RideRental.Services
+{
+    public static class ContentBasedRecommender
     {
         private static readonly Dictionary<string, int> modelIndex = new();
         private static int nextModelIndex = 1;
- 
+
+        public static List<Bike> RecommendForUser(string userEmail, List<RentalLog> allLogs, List<Bike> availableBikes, int top = 3)
+        {
+            var userLogs = allLogs
+                .Where(log => log.UserEmail == userEmail && (log.Action == "Approved" || log.Action == "Returned"))
+                .ToList();
+
+            if (!userLogs.Any()) return new();
+
+            var userVector = userLogs
+                .Select(BikeToVector)
+                .Aggregate((a, b) => a.Zip(b, (x, y) => x + y).ToArray());
+
+            double magnitude = Math.Sqrt(userVector.Sum(x => x * x));
+            userVector = userVector.Select(x => x / magnitude).ToArray();
+
+            return availableBikes
+                .Select(b => new
+                {
+                    Bike = b,
+                    Score = CosineSimilarity(userVector, BikeToVector(b))
+                })
+                .OrderByDescending(x => x.Score)
+                .Take(top)
+                .Select(x => x.Bike)
+                .ToList();
+        }
+        public static List<Bike> RecommendForUserFromLog(RentalLog inputLog, List<Bike> availableBikes, int top = 3)
+        {
+            var userVector = BikeToVector(inputLog);
+            double magnitude = Math.Sqrt(userVector.Sum(x => x * x));
+            if (magnitude > 0)
+                userVector = userVector.Select(x => x / magnitude).ToArray();
+
+            return availableBikes
+                .Select(b => new
+                {
+                    Bike = b,
+                    Score = CosineSimilarity(userVector, BikeToVector(b))
+                })
+                .OrderByDescending(x => x.Score)
+                .Take(top)
+                .Select(x => x.Bike)
+                .ToList();
+        }
+
+
+
 
         private static double[] BikeToVector(Bike b)
         {
@@ -89,73 +135,30 @@
                 bMag += b[i] * b[i];
             }
 
-            return dot / (Math.Sqrt(aMag) * Math.Sqrt(bMag) + 1e-10);
+            return dot / (Math.Sqrt(aMag) * Math.Sqrt(bMag) + 1e-10); 
         }
-        public static List<Bike> RecommendBySimilarUsers(
-            string userEmail,
-            List<User> allUsers,
-            List<RentalLog> allLogs,
-            List<Bike> availableBikes,
-            int top = 3)
+        public static List<Bike> RecommendFromUserLogs(List<RentalLog> userLogs, List<Bike> availableBikes, int top = 3)
         {
-            var currentUser = allUsers.FirstOrDefault(u => u.Email == userEmail);
-            if (currentUser == null) return new();
+            if (!userLogs.Any()) return new();
 
-            // Calculate similarity with other users
-            var similarities = allUsers
-                .Where(u => u.Email != userEmail)
-                .Select(other => new
-                {
-                    User = other,
-                    Score = CalculateUserSimilarity(currentUser, other)
-                })
-                .OrderByDescending(x => x.Score)
-                .Take(3)
-                .ToList();
-
-            // Collect rental logs from similar users
-            var similarUserEmails = similarities.Select(x => x.User.Email).ToList();
-
-            var similarUsersLogs = allLogs
-                .Where(log => similarUserEmails.Contains(log.UserEmail) && log.Action == "Approved")
-                .ToList();
-
-            if (!similarUsersLogs.Any()) return new();
-
-            // Aggregate their rental vectors
-            var aggregatedVector = similarUsersLogs
+            var userVector = userLogs
                 .Select(BikeToVector)
                 .Aggregate((a, b) => a.Zip(b, (x, y) => x + y).ToArray());
 
-            double magnitude = Math.Sqrt(aggregatedVector.Sum(x => x * x));
-            aggregatedVector = aggregatedVector.Select(x => x / magnitude).ToArray();
+            double magnitude = Math.Sqrt(userVector.Sum(x => x * x));
+            userVector = userVector.Select(x => x / magnitude).ToArray();
 
-            // Score and recommend from available bikes
             return availableBikes
                 .Select(b => new
                 {
                     Bike = b,
-                    Score = CosineSimilarity(aggregatedVector, BikeToVector(b))
+                    Score = CosineSimilarity(userVector, BikeToVector(b))
                 })
                 .OrderByDescending(x => x.Score)
                 .Take(top)
                 .Select(x => x.Bike)
                 .ToList();
         }
-
-        private static double CalculateUserSimilarity(User u1, User u2)
-        {
-            // Normalize age difference (0 to 1), assume age ranges 10–80
-            double ageSim = 1.0 - Math.Min(Math.Abs(u1.Age - u2.Age), 70) / 70.0;
-
-            // Occupation match
-            double occSim = u1.Occupation.Trim().ToLower() == u2.Occupation.Trim().ToLower() ? 1.0 : 0.0;
-
-            // You can weight them if needed
-            return (ageSim * 0.6) + (occSim * 0.4);
-        }
-
-        // Reuse ParsePower, EncodeCategory, etc. from your existing code
     }
 
 }

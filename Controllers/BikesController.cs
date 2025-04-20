@@ -163,7 +163,7 @@ namespace RideRental.Controllers
             List<Bike> recommended;
             if (userLogs.Any())
             {
-                recommended = CollaborativeRecommender.RecommendFromUserLogs(userLogs, availableBikes, 3);
+                recommended = ContentBasedRecommender.RecommendFromUserLogs(userLogs, availableBikes, 3);
             }
             else
             {
@@ -178,7 +178,7 @@ namespace RideRental.Controllers
                         BikeModel = "PreferenceBasedModel"
                     };
 
-                    recommended = CollaborativeRecommender.RecommendForUserFromLog(pseudoLog, availableBikes, 3);
+                    recommended = ContentBasedRecommender.RecommendForUserFromLog(pseudoLog, availableBikes, 3);
                 }
                 else
                 {
@@ -320,7 +320,7 @@ namespace RideRental.Controllers
 
             if (userLogs.Any())
             {
-                recommended = CollaborativeRecommender.RecommendFromUserLogs(userLogs, availableBikes, 3);
+                recommended = ContentBasedRecommender.RecommendFromUserLogs(userLogs, availableBikes, 3);
             }
             else
             {
@@ -336,7 +336,7 @@ namespace RideRental.Controllers
                         BikeModel = "PreferenceBasedModel"
                     };
 
-                    recommended = CollaborativeRecommender.RecommendForUserFromLog(pseudoLog, availableBikes, 3);
+                    recommended = ContentBasedRecommender.RecommendForUserFromLog(pseudoLog, availableBikes, 3);
                 }
                 else
                 {
@@ -347,6 +347,19 @@ namespace RideRental.Controllers
             return View("~/Views/User/Recommended.cshtml", recommended);
         }
 
+        public async Task<IActionResult> RecommendBySimilarUsers()
+        {
+            if (!IsUserLoggedIn()) return RedirectToAction("Login", "Account");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var allUsers = await _context.Users.ToListAsync();
+            var allLogs = await _context.RentalLogs.ToListAsync();
+            var availableBikes = await _context.Bikes.Where(b => b.AvailabilityStatus == "Available").ToListAsync();
+
+            var recommended = CollaborativeRecommender.RecommendBySimilarUsers(userEmail, allUsers, allLogs, availableBikes);
+            ViewBag.Recommended = recommended;
+
+            return View("~/Views/User/Recommended.cshtml", recommended);
+        }
 
 
     }
