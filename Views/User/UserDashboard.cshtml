@@ -4,6 +4,7 @@
 }
 
 
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>
@@ -47,10 +48,15 @@
         <button type="submit" class="btn btn-success px-4">
             Search
         </button>
+
     </div>
 </form>
 
 <h2>Available Bikes</h2>
+@if (TempData["search_error"] != null)
+{
+    <div class="alert alert-danger">@TempData["search_error"]</div>
+}
 <div class="row">
     @foreach (var bike in Model)
     {

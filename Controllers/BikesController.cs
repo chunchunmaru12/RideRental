@@ -193,12 +193,25 @@ namespace RideRental.Controllers
 
             if (!string.IsNullOrEmpty(searchModel))
             {
+                const double threshold = 0.6;  
                 filteredBikes = bikes
-                    .Where(b => b.Model != null && b.Model.Contains(searchModel, StringComparison.OrdinalIgnoreCase))
+                    .Where(b => !string.IsNullOrEmpty(b.Model))
+                    .Select(b => new
+                    {
+                        Bike = b,
+                        Score = JaroWinkler.Compare(b.Model.ToLower(), searchModel.ToLower())
+                    })
+                    .Where(x => x.Score >= threshold)
+                    .OrderByDescending(x => x.Score)
+                    .Select(x => x.Bike)
                     .ToList();
+
+                }
+
+            if(!filteredBikes.Any())
+{
+                TempData["search_error"] = "No bikes found matching your search. Try a different model name.";
             }
-
-
             //   PAGINATION
             var pagedBikes = filteredBikes
                 .Skip((page - 1) * pageSize)
