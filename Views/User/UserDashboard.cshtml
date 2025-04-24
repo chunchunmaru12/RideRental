@@ -29,7 +29,7 @@
                         <p class="card-text">
                             Category: @rec.Category<br />
                             Power: @rec.Power<br />
-                            Price: $@rec.RentalPricePerHour/hr
+                            Price: Rs.@rec.RentalPricePerHour/hr
                         </p>
                         <a asp-controller="Bikes" asp-action="Details" asp-route-id="@rec.BikeID" class="btn btn-outline-success w-100">View</a>
                     </div>
@@ -68,7 +68,7 @@
                     <p class="card-text">
                         Category: @bike.Category<br />
                         Power: @bike.Power<br />
-                        Price: $@bike.RentalPricePerHour/hr
+                        Price: Rs.@bike.RentalPricePerHour/hr
                     </p>
                     @if (bike.AvailabilityStatus == "Available")
                     {

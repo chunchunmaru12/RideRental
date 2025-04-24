@@ -45,7 +45,6 @@
                            matches / (double)s2.Length +
                            (matches - transpositions / 2.0) / matches) / 3.0;
 
-            // Winkler adjustment
             int prefix = 0;
             for (int i = 0; i < Math.Min(4, Math.Min(s1.Length, s2.Length)); i++)
             {
